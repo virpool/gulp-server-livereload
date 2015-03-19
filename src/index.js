@@ -69,7 +69,15 @@ module.exports = function(options) {
   };
 
   // connect app
-  var app = connect();
+  var app = connect(),
+      serverOptions;
+
+  if (config.https) {
+    serverOptions = {
+      key: fs.readFileSync(config.https.key || __dirname + '/../ssl/dev-key.pem'),
+      cert: fs.readFileSync(config.https.cert || __dirname + '/../ssl/dev-cert.pem')
+    };
+  }
 
   //  directory listing
   if (config.directoryListing.enable) {
@@ -78,7 +86,7 @@ module.exports = function(options) {
 
   // socket.io
   if (config.livereload.enable) {
-    var ioServerOrigin = 'http://' + config.host + ':' + config.livereload.port;
+    var ioServerOrigin = 'http' + (config.https ? 's' : '') + '://' + config.host + ':' + config.livereload.port;
 
     // socket.io won't load if requirejs is already loaded unless I disable it first
     var snippet = "<script type=\"text/javascript\">"
@@ -145,7 +153,7 @@ module.exports = function(options) {
     io.path("");
     io.on('connection', function(socket){
       gutil.log('Livereload client connected');
-      
+
       socket.on('console_log', function(data){
         var args = [
           gutil.colors.green('log')
@@ -183,20 +191,22 @@ module.exports = function(options) {
         gutil.log.apply(null, args);
       });
     });
-    io.attach(
-      (config.livereload.ioServer = http.Server().listen(config.livereload.port))
-    );
+    if (config.https) {
+      io.attach(
+        (config.livereload.ioServer = https.createServer(serverOptions).listen(config.livereload.port))
+      );
+    }
+    else {
+      io.attach(
+        (config.livereload.ioServer = http.Server().listen(config.livereload.port))
+      );
+    }
   }
 
   // http server
   var webserver = null;
   if (config.https) {
-    var options = {
-      key: fs.readFileSync(config.https.key || __dirname + '/../ssl/dev-key.pem'),
-      cert: fs.readFileSync(config.https.cert || __dirname + '/../ssl/dev-cert.pem')
-    };
-
-    webserver = https.createServer(options, app);
+    webserver = https.createServer(serverOptions, app);
   }
   else {
     webserver = http.createServer(app);
