@@ -1,6 +1,6 @@
 {
   "name": "gulp-server-livereload",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Gulp plugin to run a local webserver with livereload enabled via socket.io",
   "main": "src/index.js",
   "scripts": {
@@ -21,9 +21,9 @@
   "author": "Ramesh Nair <ram@hiddentao.com> (http://hiddentao.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hiddentao/gulp-server-livereload/issues"
+    "url": "https://github.com/virpool/gulp-server-livereload/issues"
   },
-  "homepage": "https://github.com/hiddentao/gulp-server-livereload",
+  "homepage": "https://github.com/virpool/gulp-server-livereload",
   "devDependencies": {
     "mocha": "~1.20.1",
     "supertest": "~0.13.0"
