@@ -11,6 +11,7 @@ var through = require('through2');
   path = require('path'),
   open = require('open'),
   enableMiddlewareShorthand = require('./enableMiddlewareShorthand'),
+  send = require('send'),
   socket = require('socket.io');
 
 
@@ -226,6 +227,9 @@ module.exports = function(options) {
     app.use(serveStatic(file.path, {
       index: (config.directoryListing.enable ? false : config.defaultFile)
     }));
+    app.use(function (req, res, next) {
+        send(req, config.defaultFile, {root: file.path}).pipe(res);
+    });
 
     if (config.livereload.enable) {
       watch(file.path, function(filename) {
